@@ -2,7 +2,7 @@
 
 Contributing library definitions is as easy as sending a pull request!
 
-## ToC
+## Table of Contents
 
 * [Understanding the definitions structure](#understanding-the-definitions-structure)
 * [Making a contribution](#making-a-contribution)
