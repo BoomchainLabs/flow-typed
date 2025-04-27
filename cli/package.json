@@ -49,7 +49,7 @@
     "simple-git": "^3.27.0",
     "table": "^6.7.3",
     "which": "^2.0.2",
-    "yargs": "^15.1.0"
+    "yargs": "^15.4.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.16.0",
