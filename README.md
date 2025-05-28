@@ -76,6 +76,20 @@ Just send a pull request! The documentation highlighted in [CONTRIBUTING.md](htt
 Bugfixes and improvements to the core CLI are welcome. If you'd like to contribute
 a new feature, consider opening an issue first to discuss it.
 
+## Cloning the Repository
+
+To clone the repository, you can use the GitHub CLI. The GitHub CLI provides a seamless way to interact with GitHub from the command line. To clone the repository, run the following command:
+
+```sh
+gh repo clone BoomchainLabs/flow-typed
+```
+
+Using the GitHub CLI for cloning repositories offers several benefits:
+
+- Simplifies the process of cloning repositories with a single command.
+- Provides additional features for managing repositories, such as creating pull requests and issues directly from the command line.
+- Enhances productivity by integrating GitHub workflows into your terminal.
+
 ## Active Maintenance Team
 
 [![Andrew Smith](https://github.com/andrewsouthpaw.png?size=100)](https://github.com/andrewsouthpaw) | [![Brian Chen](https://github.com/Brianzchen.png?size=100)](https://github.com/Brianzchen)  | [![Georges-Antoine Assi](https://github.com/gantoine.png?size=100)](https://github.com/gantoine) | [![Pascal Duez](https://github.com/pascalduez.png?size=100)](https://github.com/pascalduez) | [![Ville Saukkonen](https://github.com/villesau.png?size=100)](https://github.com/villesau)
