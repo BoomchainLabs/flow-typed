@@ -35,7 +35,7 @@
   "dependencies": {
     "@octokit/rest": "^22.0.0",
     "colors": "1.4.0",
-    "flowgen": "^1.10.0",
+    "flowgen": "^1.21.0",
     "fs-extra": "^8.1.0",
     "glob": "^9.0.0",
     "got": "^11.8.6",
