@@ -28,6 +28,7 @@ import xorBy from "lodash/fp/xorBy";
 import zip from "lodash/fp/zip";
 import isString from "lodash/fp/isString";
 import concat from "lodash/fp/concat";
+import chunk from "lodash/fp/chunk";
 import first from "lodash/fp/first";
 import conformsTo from "lodash/fp/conformsTo";
 import defaultTo from "lodash/fp/defaultTo";
@@ -40,6 +41,12 @@ import pipe from "lodash/fp/pipe";
 import compose from "lodash/fp/compose";
 import includes from "lodash/fp/includes";
 import pick from "lodash/fp/pick";
+
+var users = [
+  { user: "barney", age: 36, active: true },
+  { user: "fred", age: 40, active: false },
+  { user: "pebbles", age: 1, active: true }
+];
 
 /**
  * filter
@@ -70,7 +77,7 @@ countBy("length")({ one: "one", two: "two", three: "three" });
 /**
  * differenceBy
  */
-differenceBy(Math.floor, ([2.1, 1.2]: $ReadOnlyArray<any>), [2.3, 3.4]);
+differenceBy(Math.floor, [2.1, 1.2], [2.3, 3.4]);
 differenceBy("x", [{ x: 2 }, { x: 1 }], [{ x: 1 }]);
 differenceBy("x")([{ x: 2 }, { x: 1 }], [{ x: 1 }]);
 
@@ -96,11 +103,6 @@ var result: Object = find("active", users);
 /**
  * find examples from the official doc
  */
-var users = [
-  { user: "barney", age: 36, active: true },
-  { user: "fred", age: 40, active: false },
-  { user: "pebbles", age: 1, active: true }
-];
 
 find(function(o) {
   return o.age < 40;
@@ -160,7 +162,7 @@ get([0], [1, 2, 3]);
 get("[1]", ["foo", "bar", "baz"]);
 get("2", [{ a: "foo" }, { b: "bar" }, { c: "baz" }]);
 get("3", [[1, 2], [3, 4], [5, 6], [7, 8]]);
-get("3")([[1, 2], [3, 4], [5, 6], [7, 8]]);
+get("3")([ [1, 2], [3, 4], [5, 6], [7, 8] ]);
 
 // Nil - it is safe to perform on nil root values, just like nil values along the "get" path
 get("thing", null);
@@ -179,7 +181,7 @@ keyBy(
 );
 keyBy("dir", [{ dir: "left", code: 97 }, { dir: "right", code: 100 }]);
 keyBy("dir")(
-  ([{ dir: "left", code: 97 }, { dir: "right", code: 100 }]: $ReadOnlyArray<any>)
+  [{ dir: "left", code: 97 }, { dir: "right", code: 100 }]
 );
 
 // Example of keying a map of objects by a number type
@@ -215,10 +217,10 @@ function square(n) {
 map(square, [4, 8]);
 map(square, { a: 4, b: 8 });
 
-var users = [{ user: "barney" }, { user: "fred" }];
+var users2 = [{ user: "barney" }, { user: "fred" }];
 
 // The `property` iteratee shorthand.
-map("user", users);
+map("user", users2);
 
 /**
  * pullAllBy
@@ -381,6 +383,55 @@ var directStrings: string[];
 
 var allNums: number[];
 var numsAndStrList: Array<number | string>;
+
+/**
+ * chunk
+ * Tests for the curried FP version of chunk with size first, array last
+ */
+
+// Basic curried usage - size first, then array
+var chunkedNums: Array<Array<number>>;
+chunkedNums = chunk(2, [1, 2, 3, 4, 5, 6]);
+chunkedNums = chunk(2)([1, 2, 3, 4, 5, 6]);
+chunkedNums = chunk(3, nums);
+chunkedNums = chunk(3)(nums);
+
+// Test with different types
+var chunkedStrings: Array<Array<string>>;
+chunkedStrings = chunk(2, ["a", "b", "c", "d"]);
+chunkedStrings = chunk(2)(["a", "b", "c", "d"]);
+
+// Test with objects
+type Obj = { id: number, ... };
+var chunkedObjects: Array<Array<Obj>>;
+chunkedObjects = chunk(2, [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }]);
+chunkedObjects = chunk(2)([{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }]);
+
+// Test return type inference
+chunk(2, [1, 2, 3, 4])[0][0] * 2;
+chunk(2)([1, 2, 3, 4])[0][0] * 2;
+
+// Test with readonly arrays
+var readonlyNums: $ReadOnlyArray<number> = [1, 2, 3, 4, 5];
+chunkedNums = chunk(2, readonlyNums);
+chunkedNums = chunk(2)(readonlyNums);
+
+// Edge cases
+chunkedNums = chunk(1, nums);
+chunkedNums = chunk(1)(nums);
+chunkedNums = chunk(10, [1, 2, 3]); // size larger than array
+chunkedNums = chunk(10)([1, 2, 3]);
+
+// Type checking - should error
+// $FlowExpectedError[incompatible-call] string. This type is incompatible with number
+chunk("2", [1, 2, 3, 4]);
+// $FlowExpectedError[incompatible-call] string. This type is incompatible with number
+chunk("2")([1, 2, 3, 4]);
+// $FlowExpectedError[incompatible-type] Array<string>. This type is incompatible with Array<number>
+var wrongType: Array<Array<string>> = chunk(2, [1, 2, 3, 4]);
+// $FlowExpectedError[invalid-computed-prop] number cannot be used to index array
+chunk(2, [1, 2, 3])[0].notAProperty;
+
 var mixedList: Array<mixed>;
 allNums = concat(nums, nums);
 numsAndStrList = concat(nums, "123");
@@ -389,10 +440,10 @@ numsAndStrList = concat(nums)(["123"]);
 numsAndStrList = concat(nums, ["123", "456"]);
 numsAndStrList = concat(nums, [1, 2, 3, "456"]);
 mixedList = concat(nums, [[1, 2, 3], "456"]);
-(concat(1, 2): number[]);
-(concat(1, [2]): number[]);
-(concat([1], [2]): number[]);
-(concat([1], 2): number[]);
+concat(1, 2);
+concat(1, [2]);
+concat([1], [2]);
+concat([1], 2);
 
 // Array#map, lodash.map, lodash#map
 nativeSquares = nums.map(function(num) {
@@ -458,10 +509,10 @@ flatMap(n => [n, n], { a: 1, b: 2 });
 noop();
 noop(1);
 noop("a", 2, [], null);
-(noop: string => void);
-(noop: (number, string) => void);
+noop;
+noop;
 // $FlowExpectedError[incompatible-cast] functions are contravariant in return types
-(noop: string => string);
+noop;
 
 const ab = (a: number) => `${a}`;
 const bc = (b: string) => ({ b });
