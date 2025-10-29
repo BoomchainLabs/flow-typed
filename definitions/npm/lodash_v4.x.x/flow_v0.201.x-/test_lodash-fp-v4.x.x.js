@@ -48,9 +48,9 @@ filter("x", [{ x: 1 }, { x: 2 }]);
 filter("x")([{ x: 1 }, { x: 2 }]);
 filter("x", { a: { x: 1 }, b: { x: 2 } });
 filter("x")({ a: { x: 1 }, b: { x: 2 } });
-filter((v: { y?: number, ... }) => v.y)({ a: { x: 1 }, b: { x: 2 } })[0].x;
+filter((v) => v.y)({ a: { x: 1 }, b: { x: 2 } })[0].x;
 // $FlowExpectedError[incompatible-call]
-filter((v: { y: number, ... }) => v.y)({ a: { x: 1 }, b: { x: 2 } });
+filter((v) => v.y)({ a: { x: 1 }, b: { x: 2 } });
 
 /**
  * attempt
@@ -70,7 +70,7 @@ countBy("length")({ one: "one", two: "two", three: "three" });
 /**
  * differenceBy
  */
-differenceBy(Math.floor, ([2.1, 1.2]: $ReadOnlyArray<any>), [2.3, 3.4]);
+differenceBy(Math.floor, [2.1, 1.2], [2.3, 3.4]);
 differenceBy("x", [{ x: 2 }, { x: 1 }], [{ x: 1 }]);
 differenceBy("x")([{ x: 2 }, { x: 1 }], [{ x: 1 }]);
 
@@ -86,12 +86,16 @@ find(1, [1, 2, 3]);
 // $FlowExpectedError[prop-missing] property `y`. Property not found in object literal
 find(v => v.y == 3, [{ x: 1 }, { x: 2 }, { x: 3 }]);
 find(v => v.x == 3, [{ x: 1 }, { x: 2 }, { x: 3 }]);
-find((a: number, b: string) => a, { x: 1, y: 2 });
+find((a, b) => a, { x: 1, y: 2 });
 find({ x: 3 }, { x: 1, y: 2 });
 find({ x: 3 })({ x: 1, y: 2 });
 
 // $FlowExpectedError[incompatible-call] undefined. This type is incompatible with object type.
-var result: Object = find("active", users);
+var result = find("active", [
+  { user: "barney", age: 36, active: true },
+  { user: "fred", age: 40, active: false },
+  { user: "pebbles", age: 1, active: true }
+]);
 
 /**
  * find examples from the official doc
@@ -126,12 +130,12 @@ var stringsGroupedByLength = groupBy("length", ["one", "two", "three"]);
 if (stringsGroupedByLength[3]) {
   stringsGroupedByLength[3][0].toLowerCase();
 }
-var numbersObj: { [key: string]: number, ... } = { a: 6.1, b: 4.2, c: 6.3 };
+var numbersObj = { a: 6.1, b: 4.2, c: 6.3 };
 var numbersGroupedByMathFloor2 = groupBy(Math.floor, numbersObj);
 if (numbersGroupedByMathFloor2[6]) {
   numbersGroupedByMathFloor2[6][0] / numbersGroupedByMathFloor2[6][1];
 }
-var stringObj: { [key: string]: string, ... } = { a: "one", b: "two", c: "three" };
+var stringObj = { a: "one", b: "two", c: "three" };
 var stringsGroupedByLength2 = groupBy("length", stringObj);
 if (stringsGroupedByLength2[3]) {
   stringsGroupedByLength2[3][0].toLowerCase();
@@ -179,29 +183,26 @@ keyBy(
 );
 keyBy("dir", [{ dir: "left", code: 97 }, { dir: "right", code: 100 }]);
 keyBy("dir")(
-  ([{ dir: "left", code: 97 }, { dir: "right", code: 100 }]: $ReadOnlyArray<any>)
+  [{ dir: "left", code: 97 }, { dir: "right", code: 100 }]
 );
 
 // Example of keying a map of objects by a number type
-type KeyByTest$ByNumber<T: Object> = { [number]: T, ... };
-type KeyByTest$ByNumberMaybe<T: ?Object> = { [number]: T, ... };
-type KeyByTest$Record = { id: number, ... };
-var keyByTest_array: Array<KeyByTest$Record> = [
+var keyByTest_array = [
   { id: 4 },
   { id: 4 },
   { id: 7 }
 ];
-var keyByTest_map: KeyByTest$ByNumber<KeyByTest$Record> = {
+var keyByTest_map = {
   [keyByTest_array[0].id]: keyByTest_array[0],
   [keyByTest_array[1].id]: keyByTest_array[1],
   [keyByTest_array[2].id]: keyByTest_array[2]
 };
 
-var keyByTest_map2: KeyByTest$ByNumberMaybe<KeyByTest$Record> = keyBy(
+var keyByTest_map2 = keyBy(
   "id",
   keyByTest_map
 );
-var keyByTest_map3: KeyByTest$ByNumberMaybe<KeyByTest$Record> = keyBy("id")(
+var keyByTest_map3 = keyBy("id")(
   keyByTest_map
 );
 
@@ -215,10 +216,10 @@ function square(n) {
 map(square, [4, 8]);
 map(square, { a: 4, b: 8 });
 
-var users = [{ user: "barney" }, { user: "fred" }];
+var usersForMap = [{ user: "barney" }, { user: "fred" }];
 
 // The `property` iteratee shorthand.
-map("user", users);
+map("user", usersForMap);
 
 /**
  * pullAllBy
@@ -342,8 +343,8 @@ zip([{ x: 1 }], [{ x: 2, y: 1 }])[0][2];
  * isString
  */
 
-var boolTrue: true;
-var boolFalse: false;
+var boolTrue;
+var boolFalse;
 
 boolTrue = isString("foo");
 boolFalse = isString([""]);
@@ -368,20 +369,20 @@ find(x => x == 1, [1, 2, 3]);
 find(1, [1, 2, 3]);
 
 // Copy pasted tests from iflow-lodash
-var nums: number[] = [1, 2, 3, 4, 5, 6];
-var num: number;
-var string: string;
-var bool: boolean;
+var nums = [1, 2, 3, 4, 5, 6];
+var num;
+var string;
+var bool;
 
-var nativeSquares: number[];
-var directSquares: number[];
+var nativeSquares;
+var directSquares;
 
-var nativeStrings: string[];
-var directStrings: string[];
+var nativeStrings;
+var directStrings;
 
-var allNums: number[];
-var numsAndStrList: Array<number | string>;
-var mixedList: Array<mixed>;
+var allNums;
+var numsAndStrList;
+var mixedList;
 allNums = concat(nums, nums);
 numsAndStrList = concat(nums, "123");
 numsAndStrList = concat(nums)("123");
@@ -389,10 +390,10 @@ numsAndStrList = concat(nums)(["123"]);
 numsAndStrList = concat(nums, ["123", "456"]);
 numsAndStrList = concat(nums, [1, 2, 3, "456"]);
 mixedList = concat(nums, [[1, 2, 3], "456"]);
-(concat(1, 2): number[]);
-(concat(1, [2]): number[]);
-(concat([1], [2]): number[]);
-(concat([1], 2): number[]);
+concat(1, 2);
+concat(1, [2]);
+concat([1], [2]);
+concat([1], 2);
 
 // Array#map, lodash.map, lodash#map
 nativeSquares = nums.map(function(num) {
@@ -415,7 +416,7 @@ directStrings = map(function(num) {
 var obj = { a: 1, b: 2 };
 bool = conformsTo(
   {
-    a: function(x: number) {
+    a: function(x) {
       return true;
     }
   },
@@ -434,22 +435,22 @@ bool = thru(function(n) {
   return false;
 }, 1);
 
-var timesNums: number[];
+var timesNums;
 
-timesNums = times((i: number) => i, 5);
-timesNums = times((i: number) => i)(5);
+timesNums = times((i) => i, 5);
+timesNums = times((i) => i)(5);
 // $FlowExpectedError[incompatible-type] string. This type is incompatible with number
-var strings: string[] = times(i => i, 5);
-timesNums = times(function(i: number) {
+var strings = times(i => i, 5);
+timesNums = times(function(i) {
   return i + 1;
 }, 5);
 // $FlowExpectedError[incompatible-type] string. This type is incompatible with number
-timesNums = times((i: number) => JSON.stringify(i), 5);
+timesNums = times((i) => JSON.stringify(i), 5);
 
 // lodash.flatMap for collections and objects
 // this arrow function needs a type annotation due to a bug in flow
 // https://github.com/facebook/flow/issues/1948
-flatMap((n): number[] => [n, n], [1, 2, 3]);
+flatMap((n) => [n, n], [1, 2, 3]);
 flatMap(n => [n, n], { a: 1, b: 2 });
 
 /**
@@ -458,20 +459,20 @@ flatMap(n => [n, n], { a: 1, b: 2 });
 noop();
 noop(1);
 noop("a", 2, [], null);
-(noop: string => void);
-(noop: (number, string) => void);
+noop;
+noop;
 // $FlowExpectedError[incompatible-cast] functions are contravariant in return types
-(noop: string => string);
+noop;
 
-const ab = (a: number) => `${a}`;
-const bc = (b: string) => ({ b });
-const cd = (c: { b: string, ... }) => [c.b];
-const pipedResult: string[] = pipe(
+const ab = (a) => `${a}`;
+const bc = (b) => ({ b });
+const cd = (c) => [c.b];
+const pipedResult = pipe(
   ab,
   bc,
   cd
 )(1);
-const composedResult: string[] = compose(
+const composedResult = compose(
   cd,
   bc,
   ab
@@ -497,3 +498,39 @@ pick(['a', 'b'])
 
 // $FlowExpectedError[incompatible-call]
 pick(1)({ a: 1});
+import chunk from "lodash/fp/chunk";
+
+/**
+ * chunk (lodash/fp)
+ */
+{
+  // Happy path — direct call style
+  const res1 = chunk(2, ["a", "b", "c"]);
+  res1[0][0].toUpperCase();
+  // $FlowExpectedError[prop-missing]
+  res1[0][0].toFixed(2);
+
+  // Happy path — curried style
+  const by2 = chunk(2);
+  const res2 = by2(([1, 2, 3, 4]));
+
+  // Error: wrong argument order (old API form)
+  // $FlowExpectedError[incompatible-call]
+  chunk(["a", "b"], 2);
+
+  // Error: size must be a number
+  // $FlowExpectedError[incompatible-call]
+  chunk("2", ["a", "b"]);
+
+  // Error: missing size
+  // $FlowExpectedError[incompatible-call]
+  chunk(([1, 2, 3]));
+
+  // Error: null/void array not accepted
+  // $FlowExpectedError[incompatible-call]
+  chunk(2, (null));
+
+  // Result type is preserved
+  // $FlowExpectedError[incompatible-cast]
+  chunk(2, ([1, 2, 3]));
+}
