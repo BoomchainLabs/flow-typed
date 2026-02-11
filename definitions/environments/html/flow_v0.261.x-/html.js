@@ -805,6 +805,7 @@ declare class HTMLImageElement extends HTMLElement {
   isMap: boolean;
   naturalHeight: number; // readonly
   naturalWidth: number; // readonly
+  fetchPriority: "high" | "low" | "auto";
   sizes: string;
   src: string;
   srcset: string;
@@ -1277,6 +1278,7 @@ declare class HTMLLinkElement extends HTMLElement {
   href: string;
   hreflang: string;
   media: string;
+  fetchPriority: "high" | "low" | "auto";
   rel: string;
   sizes: DOMTokenList;
   type: string;
@@ -1289,6 +1291,7 @@ declare class HTMLScriptElement extends HTMLElement {
   charset: string;
   crossOrigin?: string;
   defer: boolean;
+  fetchPriority: "high" | "low" | "auto";
   // flowlint unsafe-getters-setters:off
   get src(): string;
   set src(value: string | TrustedScriptURL): void;
